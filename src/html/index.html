@@ -11,7 +11,7 @@
     <div id="toolbar" class="space-x-5 pb-4 w-full">
         <!-- Button to add weather csv -->
         <span>
-            <input type="file" style="display:none;" id="add-csv-input" onchange="gotNewInput(this)" accept=".csv">
+            <input type="file" style="display:none;" id="add-csv-input" onchange="gotNewInput(this)" accept="text/csv">
             <button id="add-csv" class="btn btn-outline btn-accent" onclick="document.getElementById('add-csv-input').click()">Add Weather CSV</button>
         </span>
         <!-- Start time picker -->
@@ -123,10 +123,12 @@
         const preferences = ipcRenderer.sendSync('getPreferences');
         const fs = require('fs');
         const path = require('path');
-        const { render } = require('nunjucks')
+        const { render, renderString } = require('nunjucks')
 
         homedir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
         weatherFile = path.join(homedir, ".PaddeCraftSoftware", "WeatherManager", "weather.json");
+
+        var chartDestroyArchive;
 
         // Get the weather data
         weatherData = JSON.parse(fs.readFileSync(weatherFile, "utf-8"))["data"];
@@ -148,7 +150,8 @@
             
             // Chart
 
-            chartElement = document.getElementById("chart")
+            try {
+            chartElement = document.getElementById("chart").getContext('2d');
             chart = new Chart(chartElement, {
                 type: 'line',
                 data: {
@@ -209,12 +212,15 @@
                     }
                 }
             });
+            chartDestroyArchive = chart;
+        
 
             // Table
 
             tableTemplate = document.getElementById("table-template");
             tableDiv = document.getElementById("tble");
-            tableDiv.innerHTML = render("src/html/table-template.html", { entries: filteredWeatherData.map(x => {
+            // tableDiv.innerHTML = render("./src/html/table-template.html", { entries: filteredWeatherData.map(x => {
+            tableDiv.innerHTML = renderString('<div class="overflow-x-auto"> <table class="table table-compact table-zebra"> <thead> <tr> <th>Date</th> <th>Temperature</th> <th>Humidity</th> <th>Pressure</th> <th>Wind Speed</th> <th>Rain</th> </tr></thead> <tbody>{% for e in entries %}<tr> <th>{{e.date}}</th> <td>{{e.temperature}}°C</td><td>{{e.humidity}}%</td><td>{{e.pressure}}hpa</td><td>{{e.wind}}kmh</td><td>{{e.rain}}mm</td></tr>{% endfor %}</tbody> </table></div>', { entries: filteredWeatherData.map(x => {
                 return {
                     date: new Date(x.time * 1000).toLocaleString(),
                     temperature: x.temperature,
@@ -231,6 +237,12 @@
             document.getElementById("temp-sel-max").innerHTML = Math.max(...filteredWeatherData.map(x => x.temperature));
             document.getElementById("pressure-sel-avg").innerHTML = Math.round(filteredWeatherData.map(x => x.pressure).reduce((a, b) => a + b) / filteredWeatherData.length);
             document.getElementById("wind-sel-avg").innerHTML = Math.round(...filteredWeatherData.map(x => x.wind));
+            
+        } catch(e) {
+                console.log(e);
+                chartDestroyArchive.destroy();
+                loadWeatherData();
+            }
         }
 
         function setTab(tab) {
@@ -260,6 +272,7 @@
 
         var fileInput = document.getElementById('add-csv-input');
         var settings = ipcRenderer.sendSync('getPreferences');
+
 
         function gotNewInput(input) {
             const reader = new FileReader();
