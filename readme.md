@@ -1,0 +1,3 @@
+# WeatherManager
+
+# What is is

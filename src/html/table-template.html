@@ -1,0 +1,26 @@
+<div class="overflow-x-auto">
+    <table class="table table-compact table-zebra">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temperature</th>
+                <th>Humidity</th>
+                <th>Pressure</th>
+                <th>Wind Speed</th>
+                <th>Rain</th>
+           </tr>
+        </thead>
+        <tbody>
+            {% for e in entries %}
+            <tr>
+                <th>{{ e.date }}</th>
+                <td>{{ e.temperature }} °C</td>
+                <td>{{ e.humidity }} %</td>
+                <td>{{ e.pressure }} hpa</td>
+                <td>{{ e.wind }} kmh</td>
+                <td>{{ e.rain }} mm</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
