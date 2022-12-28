@@ -80,6 +80,9 @@ const preferences = new ElectronPreferences({
         formats: {
             time: "YYYY/M/D H:mm",
         },
+        other: {
+            daily_after_entries: 100,
+        },
     },
 
     // Preference sections visible to the UI
@@ -142,6 +145,26 @@ const preferences = new ElectronPreferences({
                                 key: "time",
                                 type: "text",
                                 hint: "https://github.com/taylorhakes/fecha#formatting-tokens",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        {
+            id: "other",
+            label: "Other",
+            icon: "grid-45",
+            form: {
+                groups: [
+                    {
+                        label: "Chart settings",
+                        fields: [
+                            {
+                                label: "Daily after entries",
+                                key: "daily_after_entries",
+                                type: "text",
+                                hint: "If there are more entries than this to be loaded, the chart only will display one entry per day.",
                             },
                         ],
                     },

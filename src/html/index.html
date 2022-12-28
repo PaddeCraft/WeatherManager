@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>WeatherManager</title>
         <script src="../js/main.js"></script>
+        <script src="../js/FileSaver.min.js"></script>
     </head>
     <body class="p-5 space-y-10">
         <div id="toolbar" class="space-x-5 pb-4 w-full">
@@ -48,8 +49,13 @@
             <input type="checkbox" id="export-modal" class="modal-toggle" />
             <label for="export-modal" class="modal cursor-pointer">
                 <label class="modal-box relative" for="">
-                    <h3 class="text-lg font-bold">WIP</h3>
-                    <p class="py-4">This feature is still work in progress.</p>
+                    <h3 class="text-lg font-bold pb-3">Export data</h3>
+                    <button
+                        class="btn btn-outline"
+                        onclick="exportWeatherData('xlsx')"
+                    >
+                        Excel
+                    </button>
                 </label>
             </label>
             <label
@@ -146,9 +152,13 @@
                         </div>
                     </div>
                 </div>
-                <br class="pt-4" />
+                <br class="pt-12" />
                 <!--- Graph -->
-                <canvas id="chart" class="w-full"></canvas>
+                <canvas
+                    id="chart"
+                    class="w-screen flex flex-grow"
+                    style="position: absolute; left: 0"
+                ></canvas>
             </div>
             <div id="tab-3" class="pt-6">
                 <div id="tble"></div>
@@ -156,6 +166,10 @@
         </div>
 
         <script type="text/javascript">
+            // TODO: Remove after developement
+            document.getElementById("start-time").value = "2021-01-01";
+            document.getElementById("end-time").value = "2021-02-01";
+
             Date.prototype.getUnixTime = function () {
                 return (this.getTime() / 1000) | 0;
             };
@@ -169,12 +183,20 @@
 
             // include Chart.js
             const { Chart } = require("chart.js");
+
+            // Electron stuff
             const { ipcRenderer, remote } = require("electron");
-            const { parse } = require("fecha");
             const preferences = ipcRenderer.sendSync("getPreferences");
+
+            const { parse } = require("fecha");
+
             const fs = require("fs");
             const path = require("path");
+
             const { render, renderString } = require("nunjucks");
+
+            // Export stuff
+            const XLSX = require("xlsx");
 
             homedir =
                 process.env.HOME ||
@@ -203,6 +225,38 @@
                 ...weatherData.map((x) => x.temperature)
             );
 
+            function exportWeatherData(format) {
+                table = document.getElementById("wdata-table");
+                if (table == null) {
+                    alert(
+                        "Error: No data is loaded. Please first load some data and then export it."
+                    );
+                    return;
+                }
+
+                switch (format) {
+                    case "xlsx":
+                        var workbook = XLSX.utils.table_to_book(table);
+
+                        // https://redstapler.co/sheetjs-tutorial-create-xlsx/
+                        var wbout = XLSX.write(workbook, {
+                            bookType: "xlsx",
+                            type: "binary",
+                        });
+                        var buf = new ArrayBuffer(wbout.length);
+                        var view = new Uint8Array(buf);
+                        for (var i = 0; i < wbout.length; i++)
+                            view[i] = wbout.charCodeAt(i) & 0xff;
+
+                        saveAs(
+                            new Blob([buf], {
+                                type: "application/octet-stream",
+                            }),
+                            "export.xlsx"
+                        );
+                }
+            }
+
             function loadWeatherData() {
                 startTime = Math.floor(
                     new Date(
@@ -216,15 +270,75 @@
                 );
 
                 if (startTime > endTime) {
-                    alert("Start time must be before end time.");
+                    alert("Start time must be earlier then end time.");
                     return;
                 }
 
-                filteredWeatherData = weatherData.filter(
-                    (x) => x.time >= startTime && x.time <= endTime
-                );
+                filteredWeatherData = weatherData
+                    .filter((x) => x.time >= startTime && x.time <= endTime)
+                    .sort(function (first, second) {
+                        return first.time - second.time;
+                    });
 
                 // Chart
+
+                if (
+                    filteredWeatherData.length <=
+                    parseInt(settings.other.daily_after_entries)
+                ) {
+                    chartData = filteredWeatherData;
+                } else {
+                    chartData = [];
+                    currentTmp = [];
+                    lastDate = new Date(0);
+
+                    filteredWeatherData.forEach(function (dataPoint) {
+                        currentDataDate = new Date(dataPoint.time * 1000);
+                        currentDataDate.setHours(0, 0, 0, 0);
+
+                        console.log(
+                            currentDataDate.getTime() > lastDate.getTime()
+                        );
+
+                        if (currentDataDate.getTime() > lastDate.getTime()) {
+                            chartData.push({
+                                time: lastDate.getUnixTime(),
+                                humidity:
+                                    currentTmp
+                                        .map((x) => x.humidity)
+                                        .reduce((a, b) => a + b, 0) /
+                                    currentTmp.length,
+                                pressure:
+                                    currentTmp
+                                        .map((x) => x.pressure)
+                                        .reduce((a, b) => a + b, 0) /
+                                    currentTmp.length,
+                                rain:
+                                    currentTmp
+                                        .map((x) => x.rain)
+                                        .reduce((a, b) => a + b, 0) /
+                                    currentTmp.length,
+                                temperature:
+                                    currentTmp
+                                        .map((x) => x.temperature)
+                                        .reduce((a, b) => a + b, 0) /
+                                    currentTmp.length,
+                                wind:
+                                    currentTmp
+                                        .map((x) => x.wind)
+                                        .reduce((a, b) => a + b, 0) /
+                                    currentTmp.length,
+                            });
+
+                            currentTmp = [];
+                            console.log(chartData);
+                        }
+
+                        currentTmp.push(dataPoint);
+
+                        lastDate = currentDataDate;
+                    });
+                }
 
                 try {
                     chartElement = document
@@ -233,51 +347,42 @@
                     chart = new Chart(chartElement, {
                         type: "line",
                         data: {
-                            labels: filteredWeatherData.map((x) =>
+                            labels: chartData.map((x) =>
                                 new Date(x.time * 1000).toLocaleString()
                             ),
                             datasets: [
                                 {
                                     label: "Temperature",
-                                    data: filteredWeatherData.map(
-                                        (x) => x.temperature
-                                    ),
+                                    data: chartData.map((x) => x.temperature),
                                     backgroundColor: "rgba(255, 99, 132, 0.2)",
                                     borderColor: "rgba(255, 99, 132, 1)",
                                     fill: false,
                                 },
                                 {
                                     label: "Humidity",
-                                    data: filteredWeatherData.map(
-                                        (x) => x.humid
-                                    ),
+                                    data: chartData.map((x) => x.humid),
                                     backgroundColor: "rgba(54, 162, 235, 0.2)",
                                     borderColor: "rgba(54, 162, 235, 1)",
                                     fill: false,
                                 },
                                 {
                                     label: "Pressure",
-                                    data: filteredWeatherData.map(
-                                        (x) => x.pressure
-                                    ),
+                                    data: chartData.map((x) => x.pressure),
                                     backgroundColor: "rgba(255, 206, 86, 0.2)",
                                     borderColor: "rgba(255, 206, 86, 1)",
                                     fill: false,
+                                    hidden: true,
                                 },
                                 {
                                     label: "Wind Speed",
-                                    data: filteredWeatherData.map(
-                                        (x) => x.wind
-                                    ),
+                                    data: chartData.map((x) => x.wind),
                                     backgroundColor: "rgba(75, 192, 192, 0.2)",
                                     borderColor: "rgba(75, 192, 192, 1)",
                                     fill: false,
                                 },
                                 {
                                     label: "Rain",
-                                    data: filteredWeatherData.map(
-                                        (x) => x.rain
-                                    ),
+                                    data: chartData.map((x) => x.rain),
                                     backgroundColor: "rgba(153, 102, 255, 0.2)",
                                     borderColor: "rgba(153, 102, 255, 1)",
                                     fill: false,
@@ -324,7 +429,7 @@
                     tableDiv = document.getElementById("tble");
                     // tableDiv.innerHTML = render("./src/html/table-template.html", { entries: filteredWeatherData.map(x => {
                     tableDiv.innerHTML = renderString(
-                        '<div class="overflow-x-auto"> <table class="table table-compact table-zebra"> <thead> <tr> <th>Date</th> <th>Temperature</th> <th>Humidity</th> <th>Pressure</th> <th>Wind Speed</th> <th>Rain</th> </tr></thead> <tbody>{% for e in entries %}<tr> <th>{{e.date}}</th> <td>{{e.temperature}}°C</td><td>{{e.humidity}}%</td><td>{{e.pressure}}hpa</td><td>{{e.wind}}kmh</td><td>{{e.rain}}mm</td></tr>{% endfor %}</tbody> </table></div>',
+                        '<div class="overflow-x-auto"> <table class="table table-compact table-zebra" id="wdata-table"> <thead> <tr> <th>Date</th> <th>Temperature</th> <th>Humidity</th> <th>Pressure</th> <th>Wind Speed</th> <th>Rain</th> </tr></thead> <tbody>{% for e in entries %}<tr> <th>{{e.date}}</th> <td>{{e.temperature}}°C</td><td>{{e.humidity}}%</td><td>{{e.pressure}}hpa</td><td>{{e.wind}}kmh</td><td>{{e.rain}}mm</td></tr>{% endfor %}</tbody> </table></div>',
                         {
                             entries: filteredWeatherData.map((x) => {
                                 return {
@@ -367,7 +472,6 @@
                     document.getElementById("wind-sel-avg").innerHTML =
                         Math.round(...filteredWeatherData.map((x) => x.wind));
                 } catch (e) {
-                    console.log(e);
                     chartDestroyArchive.destroy();
                     loadWeatherData();
                 }
