@@ -1,316 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeatherManager</title>
-    <script src="../js/main.js"></script>
-</head>
-<body class="p-5 space-y-10">
-    <div id="toolbar" class="space-x-5 pb-4 w-full">
-        <!-- Button to add weather csv -->
-        <span>
-            <input type="file" style="display:none;" id="add-csv-input" onchange="gotNewInput(this)" accept="text/csv">
-            <button id="add-csv" class="btn btn-outline btn-accent" onclick="document.getElementById('add-csv-input').click()">Add Weather CSV</button>
-        </span>
-        <!-- Start time picker -->
-        <span>
-            <label for="start-time">Start Date</label>
-            <input type="date" id="start-time" class="rounded">
-        </span>
-        <!-- End time picker -->
-        <span>
-            <label for="end-time">End Date</label>
-            <input type="date" id="end-time" class="rounded">
-        </span>
-        <!-- Button to load -->
-        <button id="load-data" class="btn btn-outline btn-accent" onclick="loadWeatherData()">Load</button>
-        <!-- Export -->
-        <input type="checkbox" id="export-modal" class="modal-toggle" />
-        <label for="export-modal" class="modal cursor-pointer">
-            <label class="modal-box relative" for="">
-                <h3 class="text-lg font-bold">WIP</h3>
-                <p class="py-4">This feature is still work in progress.</p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WeatherManager</title>
+        <script src="../js/main.js"></script>
+    </head>
+    <body class="p-5 space-y-10">
+        <div id="toolbar" class="space-x-5 pb-4 w-full">
+            <!-- Button to add weather csv -->
+            <span>
+                <input
+                    type="file"
+                    style="display: none"
+                    id="add-csv-input"
+                    onchange="gotNewInput(this)"
+                    accept="text/csv"
+                />
+                <button
+                    id="add-csv"
+                    class="btn btn-outline btn-accent"
+                    onclick="document.getElementById('add-csv-input').click()"
+                >
+                    Add Weather CSV
+                </button>
+            </span>
+            <!-- Start time picker -->
+            <span>
+                <label for="start-time">Start Date</label>
+                <input type="date" id="start-time" class="rounded" />
+            </span>
+            <!-- End time picker -->
+            <span>
+                <label for="end-time">End Date</label>
+                <input type="date" id="end-time" class="rounded" />
+            </span>
+            <!-- Button to load -->
+            <button
+                id="load-data"
+                class="btn btn-outline btn-accent"
+                onclick="loadWeatherData()"
+            >
+                Load
+            </button>
+            <!-- Export -->
+            <input type="checkbox" id="export-modal" class="modal-toggle" />
+            <label for="export-modal" class="modal cursor-pointer">
+                <label class="modal-box relative" for="">
+                    <h3 class="text-lg font-bold">WIP</h3>
+                    <p class="py-4">This feature is still work in progress.</p>
+                </label>
             </label>
-        </label>
-        <label for="export-modal" class="btn btn-outline" style="float: right;">Export</label>
-        <button class="btn btn-outline" style="float: right;" onclick="showPreferences()">Settings</button>
-    </div>
-    
-    <div class="prose">
+            <label
+                for="export-modal"
+                class="btn btn-outline"
+                style="float: right"
+                >Export</label
+            >
+            <button
+                class="btn btn-outline"
+                style="float: right"
+                onclick="showPreferences()"
+            >
+                Settings
+            </button>
+        </div>
 
-    <div class="tabs">
-        <btn onclick="setTab(1)" id="t1" class="tab tab-bordered tab-active">Start</btn>
-        <btn onclick="setTab(2)" id="t2" class="tab tab-bordered">Graph</btn>
-        <btn onclick="setTab(3)" id="t3" class="tab tab-bordered">Table</btn>
-    </div>
+        <div class="prose">
+            <div class="tabs">
+                <btn
+                    onclick="setTab(1)"
+                    id="t1"
+                    class="tab tab-bordered tab-active"
+                    >Start</btn
+                >
+                <btn onclick="setTab(2)" id="t2" class="tab tab-bordered"
+                    >Graph</btn
+                >
+                <btn onclick="setTab(3)" id="t3" class="tab tab-bordered"
+                    >Table</btn
+                >
+            </div>
 
-        <div id="tab-1">
-            <h2 class="pb-3">Welcome.</h2>
-            <div class="stats shadow">
-            
-            <div class="stats dark:bg-neutral shadow">
-                <div class="stat">
-                    <div class="stat-title">Total Entries</div>
-                    <div class="stat-value">#<span id="total-entries"></span></div>
-                </div>
-                <div class="stat">
-                    <div class="stat-title">Lowest Temperature</div>
-                    <div class="stat-value"><span id="temperature-lowest"></span> °C</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-title">Highest Temperature</div>
-                    <div class="stat-value"><span id="temperature-highest"></span> °C</div>
+            <div id="tab-1">
+                <h2 class="pb-3">Welcome.</h2>
+                <div class="stats shadow">
+                    <div class="stats dark:bg-neutral shadow">
+                        <div class="stat">
+                            <div class="stat-title">Total Entries</div>
+                            <div class="stat-value">
+                                #<span id="total-entries"></span>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Lowest Temperature</div>
+                            <div class="stat-value">
+                                <span id="temperature-lowest"></span> °C
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Highest Temperature</div>
+                            <div class="stat-value">
+                                <span id="temperature-highest"></span> °C
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    
-        </div>
-        <div id="tab-2" class="pt-6">
-            <!--- Stats -->
-            <div class="stats shadow dark:bg-neutral">
-  
-                <div class="stat">
-                    <div class="stat-title">Average Temperature</div>
-                    <div class="stat-value"><span id="temp-sel-avg"></span> °C</div>
-                </div>
-                
-                <div class="stat">
-                    <div class="stat-title">Lowest Temperature</div>
-                    <div class="stat-value"><span id="temp-sel-min"></span> °C</div>
-                </div>
-                
-                <div class="stat">
-                    <div class="stat-title">Highest Temperature</div>
-                    <div class="stat-value"><span id="temp-sel-max"></span> °C</div>
-                </div>
+            <div id="tab-2" class="pt-6">
+                <!--- Stats -->
+                <div class="stats shadow dark:bg-neutral">
+                    <div class="stat">
+                        <div class="stat-title">Average Temperature</div>
+                        <div class="stat-value">
+                            <span id="temp-sel-avg"></span> °C
+                        </div>
+                    </div>
 
-                <div class="stat">
-                    <div class="stat-title">Average Pressure</div>
-                    <div class="stat-value"><span id="pressure-sel-avg"></span> hpa</div>
-                </div>
+                    <div class="stat">
+                        <div class="stat-title">Lowest Temperature</div>
+                        <div class="stat-value">
+                            <span id="temp-sel-min"></span> °C
+                        </div>
+                    </div>
 
-                <div class="stat">
-                    <div class="stat-title">Average Windspeed</div>
-                    <div class="stat-value"><span id="wind-sel-avg"></span> km/h</div>
+                    <div class="stat">
+                        <div class="stat-title">Highest Temperature</div>
+                        <div class="stat-value">
+                            <span id="temp-sel-max"></span> °C
+                        </div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-title">Average Pressure</div>
+                        <div class="stat-value">
+                            <span id="pressure-sel-avg"></span> hpa
+                        </div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-title">Average Windspeed</div>
+                        <div class="stat-value">
+                            <span id="wind-sel-avg"></span> km/h
+                        </div>
+                    </div>
                 </div>
-                
+                <br class="pt-4" />
+                <!--- Graph -->
+                <canvas id="chart" class="w-full"></canvas>
             </div>
-            <br class="pt-4">
-            <!--- Graph -->
-            <canvas id="chart" class="w-full"></canvas>
-        </div>
-        <div id="tab-3" class="pt-6">
-            <div id="tble"></div>
+            <div id="tab-3" class="pt-6">
+                <div id="tble"></div>
+            </div>
         </div>
 
-    </div>
+        <script type="text/javascript">
+            Date.prototype.getUnixTime = function () {
+                return (this.getTime() / 1000) | 0;
+            };
+            if (!Date.now)
+                Date.now = function () {
+                    return new Date();
+                };
+            Date.time = function () {
+                return Date.now().getUnixTime();
+            };
 
-    <script type="text/javascript">
-        sleep = (milliseconds) => {
-            return new Promise(resolve => setTimeout(resolve, milliseconds))
-        }
+            // include Chart.js
+            const { Chart } = require("chart.js");
+            const { ipcRenderer, remote } = require("electron");
+            const { parse } = require("fecha");
+            const preferences = ipcRenderer.sendSync("getPreferences");
+            const fs = require("fs");
+            const path = require("path");
+            const { render, renderString } = require("nunjucks");
 
-        Date.prototype.getUnixTime = function() { return this.getTime()/1000|0 };
-        if(!Date.now) Date.now = function() { return new Date(); }
-        Date.time = function() { return Date.now().getUnixTime(); }
+            homedir =
+                process.env.HOME ||
+                process.env.HOMEPATH ||
+                process.env.USERPROFILE;
+            weatherFile = path.join(
+                homedir,
+                ".PaddeCraftSoftware",
+                "WeatherManager",
+                "weather.json"
+            );
 
-        // include Chart.js
-        const { Chart } = require('chart.js');
-        const { ipcRenderer, remote } = require('electron');
-        const { parse } = require('fecha');
-        const preferences = ipcRenderer.sendSync('getPreferences');
-        const fs = require('fs');
-        const path = require('path');
-        const { render, renderString } = require('nunjucks')
+            var chartDestroyArchive;
 
-        homedir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
-        weatherFile = path.join(homedir, ".PaddeCraftSoftware", "WeatherManager", "weather.json");
+            // Get the weather data
+            weatherData = JSON.parse(fs.readFileSync(weatherFile, "utf-8"))[
+                "data"
+            ];
 
-        var chartDestroyArchive;
+            document.getElementById("total-entries").innerHTML =
+                weatherData.length;
+            document.getElementById("temperature-lowest").innerHTML = Math.min(
+                ...weatherData.map((x) => x.temperature)
+            );
+            document.getElementById("temperature-highest").innerHTML = Math.max(
+                ...weatherData.map((x) => x.temperature)
+            );
 
-        // Get the weather data
-        weatherData = JSON.parse(fs.readFileSync(weatherFile, "utf-8"))["data"];
+            function loadWeatherData() {
+                startTime = Math.floor(
+                    new Date(
+                        document.getElementById("start-time").value
+                    ).getTime() / 1000
+                );
+                endTime = Math.floor(
+                    new Date(
+                        document.getElementById("end-time").value
+                    ).getTime() / 1000
+                );
 
-        document.getElementById("total-entries").innerHTML = weatherData.length;
-        document.getElementById("temperature-lowest").innerHTML = Math.min(...weatherData.map(x => x.temperature));
-        document.getElementById("temperature-highest").innerHTML = Math.max(...weatherData.map(x => x.temperature));
+                if (startTime > endTime) {
+                    alert("Start time must be before end time.");
+                    return;
+                }
 
-        function loadWeatherData() {
-            startTime = Math.floor(new Date(document.getElementById("start-time").value).getTime() / 1000);
-            endTime = Math.floor(new Date(document.getElementById("end-time").value).getTime() / 1000);
+                filteredWeatherData = weatherData.filter(
+                    (x) => x.time >= startTime && x.time <= endTime
+                );
 
-            if(startTime > endTime) {
-                alert("Start time must be before end time.");
-                return;
+                // Chart
+
+                try {
+                    chartElement = document
+                        .getElementById("chart")
+                        .getContext("2d");
+                    chart = new Chart(chartElement, {
+                        type: "line",
+                        data: {
+                            labels: filteredWeatherData.map((x) =>
+                                new Date(x.time * 1000).toLocaleString()
+                            ),
+                            datasets: [
+                                {
+                                    label: "Temperature",
+                                    data: filteredWeatherData.map(
+                                        (x) => x.temperature
+                                    ),
+                                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                                    borderColor: "rgba(255, 99, 132, 1)",
+                                    fill: false,
+                                },
+                                {
+                                    label: "Humidity",
+                                    data: filteredWeatherData.map(
+                                        (x) => x.humid
+                                    ),
+                                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                                    borderColor: "rgba(54, 162, 235, 1)",
+                                    fill: false,
+                                },
+                                {
+                                    label: "Pressure",
+                                    data: filteredWeatherData.map(
+                                        (x) => x.pressure
+                                    ),
+                                    backgroundColor: "rgba(255, 206, 86, 0.2)",
+                                    borderColor: "rgba(255, 206, 86, 1)",
+                                    fill: false,
+                                },
+                                {
+                                    label: "Wind Speed",
+                                    data: filteredWeatherData.map(
+                                        (x) => x.wind
+                                    ),
+                                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                                    borderColor: "rgba(75, 192, 192, 1)",
+                                    fill: false,
+                                },
+                                {
+                                    label: "Rain",
+                                    data: filteredWeatherData.map(
+                                        (x) => x.rain
+                                    ),
+                                    backgroundColor: "rgba(153, 102, 255, 0.2)",
+                                    borderColor: "rgba(153, 102, 255, 1)",
+                                    fill: false,
+                                },
+                            ],
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [
+                                    {
+                                        type: "time",
+                                        time: {
+                                            unit: "hour",
+                                        },
+                                    },
+                                ],
+                                yAxes: [
+                                    {
+                                        ticks: {
+                                            stepSize: Math.round(
+                                                (parseInt(
+                                                    document.getElementById(
+                                                        "temperature-highest"
+                                                    )
+                                                ) -
+                                                    parseInt(
+                                                        document.getElementById(
+                                                            "temperature-lowest"
+                                                        )
+                                                    )) /
+                                                    10
+                                            ),
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    });
+                    chartDestroyArchive = chart;
+
+                    // Table
+
+                    tableTemplate = document.getElementById("table-template");
+                    tableDiv = document.getElementById("tble");
+                    // tableDiv.innerHTML = render("./src/html/table-template.html", { entries: filteredWeatherData.map(x => {
+                    tableDiv.innerHTML = renderString(
+                        '<div class="overflow-x-auto"> <table class="table table-compact table-zebra"> <thead> <tr> <th>Date</th> <th>Temperature</th> <th>Humidity</th> <th>Pressure</th> <th>Wind Speed</th> <th>Rain</th> </tr></thead> <tbody>{% for e in entries %}<tr> <th>{{e.date}}</th> <td>{{e.temperature}}°C</td><td>{{e.humidity}}%</td><td>{{e.pressure}}hpa</td><td>{{e.wind}}kmh</td><td>{{e.rain}}mm</td></tr>{% endfor %}</tbody> </table></div>',
+                        {
+                            entries: filteredWeatherData.map((x) => {
+                                return {
+                                    date: new Date(
+                                        x.time * 1000
+                                    ).toLocaleString(),
+                                    temperature: x.temperature,
+                                    humidity: x.humidity,
+                                    pressure: x.pressure,
+                                    wind: x.wind,
+                                    rain: x.rain,
+                                };
+                            }),
+                        }
+                    );
+
+                    // Stats
+                    document.getElementById("temp-sel-avg").innerHTML =
+                        Math.round(
+                            filteredWeatherData
+                                .map((x) => x.temperature)
+                                .reduce((a, b) => a + b) /
+                                filteredWeatherData.length
+                        );
+                    document.getElementById("temp-sel-min").innerHTML =
+                        Math.min(
+                            ...filteredWeatherData.map((x) => x.temperature)
+                        );
+                    document.getElementById("temp-sel-max").innerHTML =
+                        Math.max(
+                            ...filteredWeatherData.map((x) => x.temperature)
+                        );
+                    document.getElementById("pressure-sel-avg").innerHTML =
+                        Math.round(
+                            filteredWeatherData
+                                .map((x) => x.pressure)
+                                .reduce((a, b) => a + b) /
+                                filteredWeatherData.length
+                        );
+                    document.getElementById("wind-sel-avg").innerHTML =
+                        Math.round(...filteredWeatherData.map((x) => x.wind));
+                } catch (e) {
+                    console.log(e);
+                    chartDestroyArchive.destroy();
+                    loadWeatherData();
+                }
             }
 
-            filteredWeatherData = weatherData.filter(x => x.time >= startTime && x.time <= endTime);
-            
-            // Chart
-
-            try {
-            chartElement = document.getElementById("chart").getContext('2d');
-            chart = new Chart(chartElement, {
-                type: 'line',
-                data: {
-                    labels: filteredWeatherData.map(x => new Date(x.time * 1000).toLocaleString()),
-                    datasets: [{
-                        label: 'Temperature',
-                        data: filteredWeatherData.map(x => x.temperature),
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Humidity',
-                        data: filteredWeatherData.map(x => x.humid),
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Pressure',
-                        data: filteredWeatherData.map(x => x.pressure),
-                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                        borderColor: 'rgba(255, 206, 86, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Wind Speed',
-                        data: filteredWeatherData.map(x => x.wind),
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false
-                    },
-                    {
-                        label: 'Rain',
-                        data: filteredWeatherData.map(x => x.rain),
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                unit: 'hour'
-                            }
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                stepSize: Math.round(
-                                    (parseInt(document.getElementById("temperature-highest"))
-                                    - parseInt(document.getElementById("temperature-lowest"))) / 10
-                                )
-                            }
-                        }]
-                    }
-                }
-            });
-            chartDestroyArchive = chart;
-        
-
-            // Table
-
-            tableTemplate = document.getElementById("table-template");
-            tableDiv = document.getElementById("tble");
-            // tableDiv.innerHTML = render("./src/html/table-template.html", { entries: filteredWeatherData.map(x => {
-            tableDiv.innerHTML = renderString('<div class="overflow-x-auto"> <table class="table table-compact table-zebra"> <thead> <tr> <th>Date</th> <th>Temperature</th> <th>Humidity</th> <th>Pressure</th> <th>Wind Speed</th> <th>Rain</th> </tr></thead> <tbody>{% for e in entries %}<tr> <th>{{e.date}}</th> <td>{{e.temperature}}°C</td><td>{{e.humidity}}%</td><td>{{e.pressure}}hpa</td><td>{{e.wind}}kmh</td><td>{{e.rain}}mm</td></tr>{% endfor %}</tbody> </table></div>', { entries: filteredWeatherData.map(x => {
-                return {
-                    date: new Date(x.time * 1000).toLocaleString(),
-                    temperature: x.temperature,
-                    humidity: x.humidity,
-                    pressure: x.pressure,
-                    wind: x.wind,
-                    rain: x.rain
-                }
-            })});
-
-            // Stats
-            document.getElementById("temp-sel-avg").innerHTML = Math.round(filteredWeatherData.map(x => x.temperature).reduce((a, b) => a + b) / filteredWeatherData.length);
-            document.getElementById("temp-sel-min").innerHTML = Math.min(...filteredWeatherData.map(x => x.temperature));
-            document.getElementById("temp-sel-max").innerHTML = Math.max(...filteredWeatherData.map(x => x.temperature));
-            document.getElementById("pressure-sel-avg").innerHTML = Math.round(filteredWeatherData.map(x => x.pressure).reduce((a, b) => a + b) / filteredWeatherData.length);
-            document.getElementById("wind-sel-avg").innerHTML = Math.round(...filteredWeatherData.map(x => x.wind));
-            
-        } catch(e) {
-                console.log(e);
-                chartDestroyArchive.destroy();
-                loadWeatherData();
+            function setTab(tab) {
+                document.getElementById("tab-1").style.display = "none";
+                document.getElementById("tab-2").style.display = "none";
+                document.getElementById("tab-3").style.display = "none";
+                document.getElementById("tab-" + tab).style.display = "block";
+                document.getElementById("t1").classList.remove("tab-active");
+                document.getElementById("t2").classList.remove("tab-active");
+                document.getElementById("t3").classList.remove("tab-active");
+                document.getElementById("t" + tab).classList.add("tab-active");
             }
-        }
 
-        function setTab(tab) {
-            document.getElementById("tab-1").style.display = "none";
-            document.getElementById("tab-2").style.display = "none";
-            document.getElementById("tab-3").style.display = "none";
-            document.getElementById("tab-" + tab).style.display = "block";
-            document.getElementById("t1").classList.remove("tab-active");
-            document.getElementById("t2").classList.remove("tab-active");
-            document.getElementById("t3").classList.remove("tab-active");
-            document.getElementById("t" + tab).classList.add("tab-active");
-        }
+            setTab(1);
 
-        setTab(1);
-
-        function writeWeatherData() {
-            fs.writeFile(weatherFile, JSON.stringify({data: weatherData}), "utf-8", (err) => {
-                if(err) {
-                    console.log(err);
-                }
-            })
-        }
-
-        function showPreferences() {
-            ipcRenderer.send('showPreferences');
-        }
-
-        var fileInput = document.getElementById('add-csv-input');
-        var settings = ipcRenderer.sendSync('getPreferences');
-
-
-        function gotNewInput(input) {
-            const reader = new FileReader();
-            reader.addEventListener('load', (event) => {
-                content = csvToArray(event.target.result);
-                tmp = [];
-                content.forEach(element => {
-                    tmp.push({
-                        "time": Math.floor(new Date(parse(element[settings.keys.time], settings.formats.time)).getTime() / 1000),
-                        "temperature": parseFloat(element[settings.keys.temp]),
-                        "humidity": parseFloat(element[settings.keys.humid]),
-                        "pressure": parseFloat(element[settings.keys.pressure]),
-                        "wind": parseFloat(element[settings.keys.wind]),
-                        "rain": parseFloat(element[settings.keys.rain]),
-                    })
-                });
-                content = tmp;
-                count = 0;
-
-                content.forEach(element => {
-                    if (element.time == 0) {
-                        return;
-                    } else if (weatherData.map(e => e.time).includes(element.time)) {
-                        return;
-                    } else {
-                        weatherData.push(element);
-                        count++;
+            function writeWeatherData() {
+                fs.writeFile(
+                    weatherFile,
+                    JSON.stringify({ data: weatherData }),
+                    "utf-8",
+                    (err) => {
+                        if (err) {
+                            console.log(err);
+                        }
                     }
-                });
+                );
+            }
 
-                writeWeatherData();
+            function showPreferences() {
+                ipcRenderer.send("showPreferences");
+            }
 
-                new Notification("WeatherManager", {
-                    body: "Added " + count + " new entries!",
+            var fileInput = document.getElementById("add-csv-input");
+            var settings = ipcRenderer.sendSync("getPreferences");
+
+            function gotNewInput(input) {
+                const reader = new FileReader();
+                reader.addEventListener("load", (event) => {
+                    content = csvToArray(event.target.result);
+                    tmp = [];
+                    content.forEach((element) => {
+                        tmp.push({
+                            time: Math.floor(
+                                new Date(
+                                    parse(
+                                        element[settings.keys.time],
+                                        settings.formats.time
+                                    )
+                                ).getTime() / 1000
+                            ),
+                            temperature: parseFloat(
+                                element[settings.keys.temp]
+                            ),
+                            humidity: parseFloat(element[settings.keys.humid]),
+                            pressure: parseFloat(
+                                element[settings.keys.pressure]
+                            ),
+                            wind: parseFloat(element[settings.keys.wind]),
+                            rain: parseFloat(element[settings.keys.rain]),
+                        });
+                    });
+                    content = tmp;
+                    count = 0;
+
+                    content.forEach((element) => {
+                        if (element.time == 0) {
+                            return;
+                        } else if (
+                            weatherData
+                                .map((e) => e.time)
+                                .includes(element.time)
+                        ) {
+                            return;
+                        } else {
+                            weatherData.push(element);
+                            count++;
+                        }
+                    });
+
+                    writeWeatherData();
+
+                    new Notification("WeatherManager", {
+                        body: "Added " + count + " new entries!",
+                    });
                 });
-            });
-            reader.readAsText(input.files[0]);
-        }
-    </script>
-</body>
+                reader.readAsText(input.files[0]);
+            }
+        </script>
+    </body>
 </html>

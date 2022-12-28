@@ -1,15 +1,16 @@
 // some vars
-var head = document.querySelector('head');
-var body = document.querySelector('body');
+var head = document.querySelector("head");
+var body = document.querySelector("body");
 
 // include default css
-head.innerHTML += "<link rel='stylesheet' type='text/css' href='../css/main.css'>";
-head.innerHTML += "<link href='https://fonts.googleapis.com/icon?family=Material+Icons+Outlined' rel='stylesheet'>";
-
+head.innerHTML +=
+    "<link rel='stylesheet' type='text/css' href='../css/main.css'>";
+head.innerHTML +=
+    "<link href='https://fonts.googleapis.com/icon?family=Material+Icons+Outlined' rel='stylesheet'>";
 
 function csvToArray(str, delimiter = ",") {
     // https://sebhastian.com/javascript-csv-to-array/
-    
+
     // slice from start of text to the first \n index
     // use split to create an array from string by delimiter
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
